@@ -1,0 +1,36 @@
+name: Build and Push Image
+
+on:
+  workflow_call:
+    inputs:
+      commit:
+        type: string
+        description: 'Full SHA of commit to be built'
+        required: false
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Set short_sha
+        id: vars
+        run: |
+          if [[ "${{ inputs.commit }}" == "" ]]; then
+            echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          else
+            echo "short_sha=$(git rev-parse --short ${{ inputs.commit }})" >> $GITHUB_ENV
+          fi
+      
+      - name: cat file
+        run: |
+          cat test.txt
